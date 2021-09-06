@@ -56,7 +56,7 @@ while done == False:
 
     allFallingObjects.add(nextObject)
 
-    screen.blit(background.image, [0,0])
+    screen.blit(background_image, [0,0])
     allFallingObjects.draw(screen)
 
 
