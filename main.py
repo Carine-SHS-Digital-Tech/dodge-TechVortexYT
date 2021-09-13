@@ -8,7 +8,7 @@ def slowprint(s):
     for c in s + '\n':
         sys.stdout.write(c)
         sys.stdout.flush()
-        time.sleep(1/50)
+        time.sleep(1/100)
 
 # Define Classes (sprites) here
 class FallingObject(pygame.sprite.Sprite):
@@ -24,6 +24,31 @@ class FallingObject(pygame.sprite.Sprite):
     def setImage(self, graphicSelected):
         fallingObjectsImage = pygame.image.load(graphicSelected)
         self.image.blit(fallingObjectsImage, (0, 0))
+    def moveFallingObjects(self,distance):
+        if self.rect.y <=470:
+            self.rect.y = self.rect.y + distance
+    def deleteFallingObjects(self):
+        if self.rect.y > 470:
+            self.kill()
+
+class Character(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface([50, 68])
+        self.image.set_colorkey(black)
+        self.rect = self.image.get_rect()
+        self.rect.x = 310
+
+        self.rect.y = 420
+        self.image.blit(pygame.image.load("Superhero.png"), (0, 0))
+    def moveCharacter(self, movement):
+        if self.rect.x >= 5 and self.rect.x <= 645:
+                self.rect.x = self.rect.x + movement
+        if self.rect.x<5:
+                self.rect.x = 5
+        if self.rect.x>645:
+                self.rext.x = 645
+
 
 
 pygame.init()                               # Pygame is initialised (starts running)
@@ -40,24 +65,53 @@ red      = (255, 0, 0)
 green    = (0, 255, 0)
 blue     = (0, 0, 255)
 # Define additional Functions and Procedures here
+
+
 allFallingObjects = pygame.sprite.Group()
+nextApple = pygame.time.get_ticks() + 2500
+
+charactersGroup = pygame.sprite.Group()
+character = Character()
+charactersGroup.add(character)
 
 
+movement = 0
 # -------- Main Program Loop -----------
 while done == False:
 
     for event in pygame.event.get():        # Check for an event (mouse click, key press)
         if event.type == pygame.QUIT:       # If user clicked close window
             done = True                     # Flag that we are done so we exit this loop
+        if event.type == pygame.KEYDOWN:
+            if event.type == pygame.K_LEFT:
+                movement = -5
+            if event.type == pygame.K_RIGHT:
+                movement = 5
+        if event.type == pygame.KEYUP:
+            movement = 0
 
     # Update sprites here
-    nextObject = FallingObject()
-    nextObject.setImage("Apple.png")
+    if pygame.time.get_ticks() > nextApple:
+        nextObject = FallingObject()
+        nextObject.setImage("Apple.png")
+        allFallingObjects.add(nextObject)
+        nextApple = pygame.time.get_ticks() + 1000
+    for eachObject in (allFallingObjects.sprites()):
+        eachObject.moveFallingObjects(5)
 
-    allFallingObjects.add(nextObject)
+        eachObject.deleteFallingObjects()
+    character.moveCharacter(movement)
+
+
+
+
+
+
+
 
     screen.blit(background_image, [0,0])
     allFallingObjects.draw(screen)
+    charactersGroup.draw(screen)
 
 
 
